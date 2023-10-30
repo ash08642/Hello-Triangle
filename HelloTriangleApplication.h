@@ -32,7 +32,8 @@ private:
 	GLFWwindow* window;
 	VkInstance instance;	// Initialize Vulkan Library. // Instance is the connection between our Application and the Vulkan library
 	VkDebugUtilsMessengerEXT debugMessenger;	// for debugCallback
-
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;	// stores Graphics card that is selected
+	
 	void initWindow();
 	void intVulkan();
 	void mainLoop();
@@ -45,5 +46,8 @@ private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);	// 1.VkDebugUtilsMessageSeverityFlagBitsEXT => specifies the severity of the message
 	void setupDebugMessenger();
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	void pickPhysicalDevice();
+	bool isDeviceSuitable(VkPhysicalDevice device);
 };
 

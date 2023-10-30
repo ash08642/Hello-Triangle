@@ -19,6 +19,7 @@ void HelloTriangleApplication::initWindow() {
 void HelloTriangleApplication::intVulkan() {
 	createInstance();
 	setupDebugMessenger();
+	pickPhysicalDevice();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -160,6 +161,42 @@ void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMess
 	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 	createInfo.pfnUserCallback = debugCallback;
 	//createInfo.pUserData = nullptr;	//optional
+}
+
+void HelloTriangleApplication::pickPhysicalDevice() {
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+	if (deviceCount == 0) {	// If there are 0 devices with Vulkan support then there is no point going further
+		throw std::runtime_error("failed to find GPUS with Vulkan support");
+	}
+
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+	for (const VkPhysicalDevice& device : devices)
+	{
+		if (isDeviceSuitable(device)) {
+			physicalDevice = device;
+			break;
+		}
+	}
+	if (physicalDevice == VK_NULL_HANDLE)
+	{
+		throw std::runtime_error("failed to find a suitable GPU");
+	}
+}
+
+bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
+	VkPhysicalDeviceProperties deviceProperties;	// Basic device properties like the name, type and supported Vulkan version
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);	// Query
+	//std::cout << deviceProperties.deviceName << std::endl;
+	
+	VkPhysicalDeviceFeatures deviceFeatures;	// support for optional features
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);	// Query
+	//std::cout << deviceFeatures.geometryShader << std::endl;
+
+	return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceFeatures.geometryShader;
 }
 
 VkResult Debug::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
