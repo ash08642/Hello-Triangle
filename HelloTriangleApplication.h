@@ -1,12 +1,17 @@
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 #include <cstring>
 #include <optional>
+#include <set>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -26,8 +31,10 @@ namespace Debug {
 
 struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
+	std::optional<uint32_t> presentFamily;
+
 	bool isComplete() {
-		return graphicsFamily.has_value();
+		return graphicsFamily.has_value() && presentFamily.has_value();
 	}
 };
 
@@ -38,11 +45,16 @@ public:
 
 private:
 	GLFWwindow* window;
+	
 	VkInstance instance;	// Initialize Vulkan Library. // Instance is the connection between our Application and the Vulkan library
 	VkDebugUtilsMessengerEXT debugMessenger;	// for debugCallback
+	VkSurfaceKHR surface;
+
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;	// stores Graphics card that is selected
 	VkDevice device;	// Logical Device Handle
+	
 	VkQueue grapicsQueue;	// Store handle to the graphics queue
+	VkQueue presentQueue;	// Store handle to the presentation queue
 
 	void initWindow();
 	void intVulkan();
@@ -63,5 +75,7 @@ private:
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	void createLogicalDevice();
+
+	void createSurface();
 };
 
