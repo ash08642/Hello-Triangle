@@ -24,7 +24,7 @@ namespace Debug {
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 }
 
-struct QueueFimilyIndeices {
+struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
 	bool isComplete() {
 		return graphicsFamily.has_value();
@@ -41,7 +41,9 @@ private:
 	VkInstance instance;	// Initialize Vulkan Library. // Instance is the connection between our Application and the Vulkan library
 	VkDebugUtilsMessengerEXT debugMessenger;	// for debugCallback
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;	// stores Graphics card that is selected
-	
+	VkDevice device;	// Logical Device Handle
+	VkQueue grapicsQueue;	// Store handle to the graphics queue
+
 	void initWindow();
 	void intVulkan();
 	void mainLoop();
@@ -58,6 +60,8 @@ private:
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
 
-	QueueFimilyIndeices findQueueFamilies(VkPhysicalDevice device);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+	void createLogicalDevice();
 };
 
