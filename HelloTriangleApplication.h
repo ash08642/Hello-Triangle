@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 #include <cstring>
+#include <optional>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -22,6 +23,13 @@ namespace Debug {
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 }
+
+struct QueueFimilyIndeices {
+	std::optional<uint32_t> graphicsFamily;
+	bool isComplete() {
+		return graphicsFamily.has_value();
+	}
+};
 
 class HelloTriangleApplication
 {
@@ -49,5 +57,7 @@ private:
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
+
+	QueueFimilyIndeices findQueueFamilies(VkPhysicalDevice device);
 };
 

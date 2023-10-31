@@ -194,10 +194,38 @@ bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
 	
 	VkPhysicalDeviceFeatures deviceFeatures;	// support for optional features
 	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);	// Query
-	//std::cout << deviceFeatures.geometryShader << std::endl;
 
-	return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceFeatures.geometryShader;
+	QueueFimilyIndeices indices = findQueueFamilies(device);
+
+	return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceFeatures.geometryShader && indices.isComplete();
 }
+
+QueueFimilyIndeices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
+	QueueFimilyIndeices indices;
+
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+	int i = 0;
+	for(const VkQueueFamilyProperties& queueFamily : queueFamilies)
+	{
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			indices.graphicsFamily = i;
+		}
+		if (indices.isComplete())
+		{
+			break;
+		}
+		i++;
+	}
+
+	return indices;
+}
+
 
 VkResult Debug::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
