@@ -10,6 +10,10 @@
 #include <stdexcept>
 #include <vector>
 #include <cstring>
+#include <cstdlib>
+#include <cstdint> // Necessary for uint32_t
+#include <limits> // Necessary for std::numeric_limits
+#include <algorithm> // Necessary for std::clamp
 #include <optional>
 #include <set>
 
@@ -17,6 +21,7 @@ const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -38,6 +43,12 @@ struct QueueFamilyIndices {
 	}
 };
 
+struct SwapChainSupportDetails {
+	VkSurfaceCapabilitiesKHR capabilities;	// Basic surface capabilities (min/max number of images in swap chain, min/-max width and height of images)
+	std::vector<VkSurfaceFormatKHR> formats;	// Surface formats (pixel format, color space)
+	std::vector<VkPresentModeKHR> presentModes;	// Available presentation modes
+};
+
 class HelloTriangleApplication
 {
 public:
@@ -56,6 +67,12 @@ private:
 	VkQueue grapicsQueue;	// Store handle to the graphics queue
 	VkQueue presentQueue;	// Store handle to the presentation queue
 
+	VkSwapchainKHR swapChain;	//store VkSwapchain objeckt
+	std::vector<VkImage> swapChainImages;	// store handles of VkImage s
+	VkFormat swapChainImageFormat;	// 
+	VkExtent2D swapChainExtent;	// 
+	std::vector<VkImageView> swapChainImageViews;
+
 	void initWindow();
 	void intVulkan();
 	void mainLoop();
@@ -71,11 +88,20 @@ private:
 
 	void pickPhysicalDevice();
 	bool isDeviceSuitable(VkPhysicalDevice device);
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	void createLogicalDevice();
 
 	void createSurface();
+
+	void createSwapChain();
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+	void createImageViews();
 };
 
