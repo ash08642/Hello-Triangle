@@ -24,6 +24,7 @@ void HelloTriangleApplication::intVulkan() {
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
+	createGraphicsPipeline();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -487,6 +488,65 @@ void HelloTriangleApplication::createImageViews() {
 		}
 	}
 };
+
+void HelloTriangleApplication::createGraphicsPipeline() {
+	std::vector<char> vertShaderCode = readFile("shaders/vert.spv");
+	std::vector<char> fragShaderCode = readFile("shaders/frag.spv");
+
+	//std::cout << vertShaderCode.size() << std::endl;	// print size of buffers and check if they match the actual file size
+	//std::cout << fragShaderCode.size() << std::endl;
+
+	VkShaderModule vertShaderModule = createSchaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = createSchaderModule(fragShaderCode);
+
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;	// in which pipeline stage the shader is going to be used
+	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pName = "main";	//entrypoint in vert.spv
+
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;	// in which pipeline stage the shader is going to be used
+	fragShaderStageInfo.module = fragShaderModule;
+	fragShaderStageInfo.pName = "main";	//entrypoint in vert.spv
+
+	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+	vkDestroyShaderModule(device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+}
+
+std::vector<char> HelloTriangleApplication::readFile(const std::string& filename) {
+	std::ifstream file(filename, std::ios::ate | std::ios::binary);	// ate: Start reading at the end of the file | binary: Read the file as binary file (avoid text transformations)
+	if (!file.is_open())
+	{
+		throw std::runtime_error("failed to open file: " + filename);
+	}
+
+	size_t fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+	file.close();
+
+	return buffer;
+}
+
+VkShaderModule HelloTriangleApplication::createSchaderModule(const std::vector<char>& code) {
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create shader module!");
+	}return shaderModule;
+}
+
 
 VkResult Debug::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");

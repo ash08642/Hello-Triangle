@@ -16,6 +16,7 @@
 #include <algorithm> // Necessary for std::clamp
 #include <optional>
 #include <set>
+#include <fstream>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -103,5 +104,9 @@ private:
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 	void createImageViews();
+
+	void createGraphicsPipeline();
+	static std::vector<char> readFile(const std::string& filename);	// load binary data from shader files
+	VkShaderModule createSchaderModule(const std::vector<char>& code);
 };
 
