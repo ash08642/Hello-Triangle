@@ -80,6 +80,9 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+	VkCommandPool commandPool;
+	VkCommandBuffer commandBuffer;
+
 	void initWindow();
 	void intVulkan();
 	void mainLoop();
@@ -118,5 +121,9 @@ private:
 	void createRenderPass();
 
 	void createFrameBuffers();
+
+	void createCommandPool();
+	void createCommandBuffer();
+	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 };
 
