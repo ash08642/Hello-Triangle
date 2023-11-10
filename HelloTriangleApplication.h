@@ -78,6 +78,8 @@ private:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+
 	void initWindow();
 	void intVulkan();
 	void mainLoop();
@@ -114,5 +116,7 @@ private:
 	VkShaderModule createSchaderModule(const std::vector<char>& code);
 
 	void createRenderPass();
+
+	void createFrameBuffers();
 };
 
