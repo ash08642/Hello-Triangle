@@ -74,6 +74,7 @@ private:
 	VkExtent2D swapChainExtent;	// 
 	std::vector<VkImageView> swapChainImageViews;
 
+	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 
 	void initWindow();
@@ -110,5 +111,7 @@ private:
 	void createGraphicsPipeline();
 	static std::vector<char> readFile(const std::string& filename);	// load binary data from shader files
 	VkShaderModule createSchaderModule(const std::vector<char>& code);
+
+	void createRenderPass();
 };
 
