@@ -21,6 +21,8 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
@@ -81,11 +83,14 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkCommandPool commandPool;
-	VkCommandBuffer commandBuffer;
+	std::vector<VkCommandBuffer> commandBuffers;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-	VkFence inFlightFence;
+	std::vector<VkSemaphore> imageAvailableSemaphore;
+	std::vector<VkSemaphore> renderFinishedSemaphore;
+	std::vector<VkFence> inFlightFence;
+	uint32_t currentFrame = 0;
+
+	bool framebufferResised = false;
 
 	void initWindow();
 	void intVulkan();
@@ -115,6 +120,8 @@ private:
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+	void recreateSwapChain();
+	void cleanUpSwapChain();
 
 	void createImageViews();
 
@@ -127,10 +134,12 @@ private:
 	void createFrameBuffers();
 
 	void createCommandPool();
-	void createCommandBuffer();
+	void createCommandBuffers();
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	void drawFrame();
 	void createSyncObjeckts();
+
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
 
