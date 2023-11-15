@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+#include <glm/glm.hpp>	//linear algebra types
 
 #include <iostream>
 #include <stdexcept>
@@ -17,6 +18,7 @@
 #include <optional>
 #include <set>
 #include <fstream>
+#include <array>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -52,6 +54,41 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;	// Available presentation modes
 };
 
+struct Vertex {
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription{};	// describes at which rate to load data from memory throughout the vertices.
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;	//Move to the next data entry after each vertex
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriiption() {	// there are going to be two of these structures. An attribute description struct describes how to extract a vertex attribute from a chunk of vertex data originating from a binding description.We have two atributes, position and color, so we need two attribute description structs.
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescription{};
+
+		attributeDescription[0].binding = 0;
+		attributeDescription[0].location = 0;
+		attributeDescription[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescription[0].offset = offsetof(Vertex, pos);
+
+		attributeDescription[1].binding = 0;
+		attributeDescription[1].location = 1;
+		attributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescription[1].offset = offsetof(Vertex, color);
+
+		return attributeDescription;
+	}
+};
+
+const std::vector<Vertex> vertices = {
+	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
+
 class HelloTriangleApplication
 {
 public:
@@ -82,6 +119,9 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
 
@@ -91,6 +131,8 @@ private:
 	uint32_t currentFrame = 0;
 
 	bool framebufferResised = false;
+
+
 
 	void initWindow();
 	void intVulkan();
@@ -139,6 +181,9 @@ private:
 
 	void drawFrame();
 	void createSyncObjeckts();
+
+	void createVertexBuffer();
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
