@@ -6,7 +6,11 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <glm/glm.hpp>	//linear algebra types
+#define GLM_FORCE_RADIANS	// make sure functions use radians as arguments
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>	// functions that can be used to generate model transformations
 
+#include <chrono>	// functions for prescise time keeping
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -83,6 +87,11 @@ struct Vertex {
 	}
 };
 
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
 const std::vector<Vertex> vertices = {
 	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 	{{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -118,6 +127,8 @@ private:
 
 	VkPipeline graphicsPipeline;
 	VkRenderPass renderPass;
+
+	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -126,6 +137,10 @@ private:
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<void*> uniformBuffersMapped;
 
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -193,6 +208,10 @@ private:
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	void createIndexBuffer();
+
+	void createDescriptorSetLayout();
+	void createUniformBuffers();
+	void updateUniformBuffer(uint32_t currentImage);
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
