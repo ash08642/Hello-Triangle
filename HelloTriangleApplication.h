@@ -128,7 +128,9 @@ private:
 	VkPipeline graphicsPipeline;
 	VkRenderPass renderPass;
 
+	VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
+	std::vector<VkDescriptorSet> descriptorSets;
 	VkPipelineLayout pipelineLayout;
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -212,6 +214,8 @@ private:
 	void createDescriptorSetLayout();
 	void createUniformBuffers();
 	void updateUniformBuffer(uint32_t currentImage);
+	void createDescriptorPool();
+	void createDescriptorSets();
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };
